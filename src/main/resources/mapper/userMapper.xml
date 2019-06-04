@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ocbc.tech.mapper.UserMapper">
+    <!--定义一个名为BaseResultMap的返回类型-->
+    <resultMap id="BaseResultMap" type="com.ocbc.tech.entity.User">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="age" property="age" jdbcType="INTEGER"></result>
+    </resultMap>
+ 
+    <!--插入语句-->
+    <!--id要与UserMapper文件中表示插入的函数名一致，parameterType表示函数的输入参数的类型-->
+    <insert id="insertUser" parameterType="com.ocbc.tech.entity.User">
+      insert into xsd_user(id,name,age)values(#{id,jdbcType=INTEGER},#{name,jdbcType=VARCHAR},#{age,jdbcType=INTEGER})/*SQL语句*/
+    </insert>
+ 
+    <!--删除语句-->
+    <delete id="deleteUser" parameterType="java.lang.Integer">
+      delete from xsd_user where id =#{id,jdbcType=INTEGER}
+    </delete>
+ 
+    <!--查找语句-->
+    <!--resultMap表示函数返回的类型-->
+    <select id="selectUser" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+       select * from xsd_user where id = #{id,jdbcType=INTEGER}
+    </select>
+    
+    <!--查找语句-->
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from xsd_user
+    </select>
+    
+    <!--修改语句-->
+    <update id="updateUser" parameterType="com.ocbc.tech.entity.User">
+        update xsd_user set name=#{name,jdbcType=VARCHAR},age=#{age,jdbcType=INTEGER} where id=#{id,jdbcType=INTEGER}
+    </update>
+</mapper>
+
