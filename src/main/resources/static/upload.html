@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ESB接口文档上传下载</title>
+<meta name="keywords" content="keyword1,keyword2,keyword3">
+<meta name="description" content="ESB接口文档上传下载">
+<meta charset="utf-8">
+<meta name="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="/css/upload.css">
+<script src="/js/jquery-3.4.1.min.js"></script>
+<script>
+	$(document).ready(function() {
+		console.info("开始~~~~~~~·");
+	});
+	$(function() {
+		let flag = false;
+		let path = "";
+		$('#fileToUpload').change(function() {
+			var file = document.uploadForm.fileToUpload.files[0];
+			if (file) {
+				var fileSize = 0;
+				if (file.size > 1024 * 1024)
+					fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+				else
+					fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
+				$('#fileName').html('Name: ' + file.name);
+				$('#fileSize').html('Size: ' + fileSize);
+				$('#fileType').html('Type: ' + file.type);
+			}
+		});
+
+		$('#upload_btn').click(function() {
+			var file = document.uploadForm.fileToUpload.files[0];
+			var fm = new FormData();
+			fm.append('file', file);
+			$.ajax(
+				{
+					url : '/file/upload',
+					type : 'POST',
+					data : fm,
+					contentType : false, //禁止设置请求类型
+					processData : false, //禁止jquery对DAta数据的处理,默认会处理
+					dateType : "json",
+					//禁止的原因是,FormData已经帮我们做了处理
+					xhr : function() { //这个是重点，获取到原始的xhr对象，进而绑定upload.onprogress
+						var xhr = jQuery.ajaxSettings.xhr();
+						xhr.upload.onprogress = function(ev) {
+							//这边开始计算百分比
+							var parcent = 0;
+							if (ev.lengthComputable) {
+								percent = 100 * ev.loaded / ev.total;
+								percent = parseFloat(percent).toFixed(2);
+								console.info(percent);
+								$('.bgpro').css('width', percent + '%');
+							}
+						};
+						xhr.onload = function(ev) {
+							console.info("onload");
+							alert(ev.target.responseText);
+						};
+						xhr.onerror = function(ev) {
+							alert("There was an error attempting to upload the file.");
+						}
+						xhr.abort = function(ev) {
+							alert("The upload has been canceled by the user or the browser dropped the connection.");
+						}
+						return xhr;
+					},
+					success : function(result) { //测试是否成功
+						//但需要你后端有返回值
+						console.info("success");
+						flag = true;
+						var json = eval(result); //数组    
+						path = json.path;
+						const msg = json.msg;
+						alert(msg);
+					}
+				}
+			);
+		});
+
+		$("#interface").click(function() {
+			if (flag) {
+				console.info("interface");
+				var $a = $("<a>");
+				$a.attr("href", "/file/download?type=1&path="+path);
+				$("body").append($a);
+				$a[0].click();
+				$a.remove();
+			} else {
+				alert("请先完成上传操作，才可以下载");
+			}
+
+		});
+		$("#scene").click(function() {
+			if (flag) {
+				console.info("interface2");
+				var $a = $("<a>");
+				$a.attr("href", "/file/download?type=2&path="+path);
+				$("body").append($a);
+				$a[0].click();
+				$a.remove();
+			} else {
+				alert("请先完成上传操作，才可以下载");
+			}
+		});
+		$("#rcd").click(function() {
+			if (flag) {
+				console.info("interface3");
+				var $a = $("<a>");
+				$a.attr("href", "/file/download?type=3&path="+path);
+				$("body").append($a);
+				$a[0].click();
+				$a.remove();
+			} else {
+				alert("请先完成上传操作，才可以下载");
+			}
+		});
+	});
+</script>
+</head>
+<body>
+	<p>ESB接口文档上传</p>
+	<form name="uploadForm" enctype="multipart/form-data">
+		<input type="file" name="fileToUpload" id="fileToUpload" /> <br />
+		<div id="fileName"></div>
+		<div id="fileSize"></div>
+		<div id="fileType"></div>
+		<br /> <input type="button" id="upload_btn" value="上传" />
+		<div class="progress">
+			<span class="bgpro"></span>
+		</div>
+	</form>
+	<p>产出物下载</p>
+	<a href="javascript:void(0);" id="interface">接口定义文档</a>
+	<br />
+	<a href="javascript:void(0);" id="scene">服务场景文档</a>
+	<br />
+	<a href="javascript:void(0);" id="rcd">报文定义RCD</a>
+</body>
+</html>
