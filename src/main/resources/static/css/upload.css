@@ -1,0 +1,13 @@
+.progress {
+    width:15%;
+    height:15px;
+    border:1px solid #ccc;
+    margin:3px 0;
+}
+.bgpro {
+    display:block;
+    width:0%;
+    background:green;
+    height:15px;
+    color:#fff;
+}
